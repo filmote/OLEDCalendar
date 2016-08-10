@@ -34,7 +34,7 @@ SSD1306          display(OLED_ADDR, OLED_SDA, OLED_SDC);        // For I2C
 
 #define CAL_FEBRUARY                                2
 #define CAL_SHOW_6_ROWS_OF_DAYS                     false
-#define CAL_SHOW_MONTH_YEAR                         false
+#define CAL_SHOW_MONTH_YEAR                         true
 
 #if CAL_SHOW_MONTH_YEAR == true
   #define CAL_INVERSE_MONTH_YEAR                    true
