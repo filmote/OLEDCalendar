@@ -3,7 +3,7 @@ An ESP8266 / OLED display project that renders a calendar.
 <br />
 
 ##Background
-The inspiration for this project came from [rydepier](https://github.com/rydepier)'s for his [Arduino-and-OLED-Calendar](https://github.com/rydepier/Arduino-and-OLED-Calendar) project which was targeted at the Arduino and used a different library to drive the OLED.  While rewriting it for the ESP8266, I used none of the original code.
+The inspiration for this project came from [rydepier](https://github.com/rydepier)'s [Arduino-and-OLED-Calendar](https://github.com/rydepier/Arduino-and-OLED-Calendar) project which was targeted at the Arduino and used a different library to drive the OLED.  While rewriting it for the ESP8266, I used none of the original code.
 
 Additional thanks to :
 
