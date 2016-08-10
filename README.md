@@ -37,6 +37,7 @@ Note that the line spacing is greater than the previous examples (11 pixels betw
 __CAL_SHOW_MONTH_YEAR__ set to __true__: 
 
 When rendering the month / year heading, the date must be displayed in 6 rows (as if __CAL_SHOW_6_ROWS_OF_DAYS__ set to __false__).  Due to real estate restrictions, the line spacing is kept tight (9 pixels).
+
 ![Calendar 1](https://github.com/filmote/OLEDCalendar/blob/master/images/calendar_01_thumb.jpg)
 
 <br />
