@@ -30,11 +30,15 @@ SSD1306          display(OLED_ADDR, OLED_SDA, OLED_SDC);        // For I2C
 #define CAL_SPACING_X                               19
 #define CAL_SPACING_X_WIDTH                         15
 #define CAL_SPACING_Y_6_ROWS                        9
-#define CAL_SPACING_Y_5_ROWS                        11
+#define CAL_SPACING_Y_5_ROWS                        10
 
 #define CAL_FEBRUARY                                2
 #define CAL_SHOW_6_ROWS_OF_DAYS                     false
 #define CAL_SHOW_MONTH_YEAR                         true
+
+#define CAL_HIGHLIGHT_CURRENT_DAY            
+#undef CAL_HIGHLIGHT_CURRENT_DAY_REVERSE                        Highlight in reverse font?    
+#define CAL_HIGHLIGHT_CURRENT_DAY_HEIGHT            7            
 
 #if CAL_SHOW_MONTH_YEAR == true
   #define CAL_INVERSE_MONTH_YEAR                    true
@@ -53,7 +57,9 @@ SSD1306          display(OLED_ADDR, OLED_SDA, OLED_SDC);        // For I2C
 //
 void setup() {
 
-  setTime(12, 0, 0, 1, 10, 2016); 
+  Serial.begin(115200);
+    
+  setTime(12, 0, 0, 16, 3, 2016); 
   display.init();
   display.displayOn();
   renderDate(now());
@@ -78,9 +84,29 @@ int daysInMonth(time_t timeT) {
 
 
 // -------------------------------------------------------------------------------------------------------
+// Calculate a timestamp representing the first day in the month ..
+
+time_t firstDayOfMonth(time_t timeT) {
+
+  tmElements_t tm;
+  tm.Hour = hour(timeT);
+  tm.Minute = minute(timeT);
+  tm.Second = second(timeT);
+  tm.Day = 1;
+  tm.Month = month(timeT);
+  tm.Year = year(timeT) - 1970;
+
+  return makeTime(tm);
+
+}
+
+
+// -------------------------------------------------------------------------------------------------------
 // Render a calendar ..
 
 void renderDate(time_t timeT) {
+
+  time_t firstOfMonth = firstDayOfMonth(timeT);
 
   display.clear();
   display.setFont(ArialMT_Plain_10);
@@ -95,7 +121,7 @@ void renderDate(time_t timeT) {
     
     String months[] = {"January","February","March","April","May","June","July","August","September","October","November","December"};
     display.setTextAlignment(TEXT_ALIGN_CENTER);
-    display.drawString(64, CAL_MONTH_YEAR_TOP, months[month(timeT)] + "  " + String(year(timeT)));
+    display.drawString(64, CAL_MONTH_YEAR_TOP, months[month(firstOfMonth) - 1] + "  " + String(year(firstOfMonth)));
     
     #if CAL_INVERSE_MONTH_YEAR
       display.setColor(WHITE);
@@ -114,8 +140,8 @@ void renderDate(time_t timeT) {
 
   int dayOfMonth = 1;
 
-  int dow = (dayOfWeek(timeT) == 1 ? 6 : dayOfWeek(timeT) - 2);
-  int maxDays = daysInMonth(timeT);
+  int dow = (dayOfWeek(firstOfMonth) == 1 ? 6 : dayOfWeek(firstOfMonth) - 2);
+  int maxDays = daysInMonth(firstOfMonth);
   int maxRows = 1 + ((maxDays - (7 - dow)) / 7) + ((maxDays - (7 - dow)) % 7 > 0 ? 1 : 0);
   int spacing_Y = ((maxRows == 6 && CAL_SHOW_6_ROWS_OF_DAYS) || CAL_SHOW_MONTH_YEAR ? CAL_SPACING_Y_6_ROWS : CAL_SPACING_Y_5_ROWS);
 
@@ -123,8 +149,39 @@ void renderDate(time_t timeT) {
   // Render first row of days, this may be less than seven days depending on when the first day of the month is ..
   
   for (int col = dow; col < 7; col++) {
+
+    #if defined(CAL_HIGHLIGHT_CURRENT_DAY) 
     
-    display.drawString((col * CAL_SPACING_X) + CAL_SPACING_X_WIDTH, CAL_SPACING_Y_TOP + (1 * spacing_Y), String(dayOfMonth));
+      #if defined(CAL_HIGHLIGHT_CURRENT_DAY_REVERSE)
+      
+        if (day(timeT) == dayOfMonth) {
+          display.setColor(WHITE);
+          display.fillRect((col * CAL_SPACING_X), CAL_SPACING_Y_TOP + spacing_Y + 2, (col < 6 ? CAL_SPACING_X_WIDTH : CAL_SPACING_X_WIDTH - 2), CAL_HIGHLIGHT_CURRENT_DAY_HEIGHT);   
+          display.setColor(BLACK);
+        }
+
+      #else
+
+        if (day(timeT) == dayOfMonth) {
+          display.drawRect((col * CAL_SPACING_X), CAL_SPACING_Y_TOP + spacing_Y + 2, (col < 6 ? CAL_SPACING_X_WIDTH : CAL_SPACING_X_WIDTH - 2), CAL_HIGHLIGHT_CURRENT_DAY_HEIGHT);      
+        }
+                  
+      #endif
+
+    #endif
+
+    display.drawString((col * CAL_SPACING_X) + CAL_SPACING_X_WIDTH, CAL_SPACING_Y_TOP + spacing_Y, String(dayOfMonth));
+    
+    #if defined(CAL_HIGHLIGHT_CURRENT_DAY)
+    
+      if (day(timeT) == dayOfMonth) {
+
+        display.setColor(WHITE);
+
+      }
+      
+    #endif
+    
     dayOfMonth++;
       
   }
@@ -135,8 +192,39 @@ void renderDate(time_t timeT) {
   for (int row = 2; row <= 6 && dayOfMonth <= maxDays; row++) {
 
     for (int col = 0; col < 7 && dayOfMonth <= maxDays; col++) {
-      
-        display.drawString((col * CAL_SPACING_X) + CAL_SPACING_X_WIDTH, CAL_SPACING_Y_TOP + ((CAL_SHOW_6_ROWS_OF_DAYS ? row : (row % 6 == 0 ? 1 : row)) * spacing_Y), String(dayOfMonth));
+
+        #if defined(CAL_HIGHLIGHT_CURRENT_DAY) 
+        
+          #if defined(CAL_HIGHLIGHT_CURRENT_DAY_REVERSE)
+          
+            if (day(timeT) == dayOfMonth) {
+              display.setColor(WHITE);
+              display.fillRect((col * CAL_SPACING_X), CAL_SPACING_Y_TOP + 2 + ((CAL_SHOW_6_ROWS_OF_DAYS ? row : (row % 6 == 0 ? 1 : row)) * spacing_Y), (col < 6 ? CAL_SPACING_X_WIDTH : CAL_SPACING_X_WIDTH - 2), spacing_Y - 1);   
+              display.setColor(BLACK);
+            }
+
+          #else
+
+            if (day(timeT) == dayOfMonth) {
+              display.drawRect((col * CAL_SPACING_X), CAL_SPACING_Y_TOP + 2 + ((CAL_SHOW_6_ROWS_OF_DAYS ? row : (row % 6 == 0 ? 1 : row)) * spacing_Y), (col < 6 ? CAL_SPACING_X_WIDTH : CAL_SPACING_X_WIDTH - 2), spacing_Y - 1);   
+            }
+                      
+          #endif
+
+        #endif
+        
+        display.drawString((col * CAL_SPACING_X) + CAL_SPACING_X_WIDTH -1, CAL_SPACING_Y_TOP + ((CAL_SHOW_6_ROWS_OF_DAYS ? row : (row % 6 == 0 ? 1 : row)) * spacing_Y), String(dayOfMonth));
+
+        #if defined(CAL_HIGHLIGHT_CURRENT_DAY)
+        
+          if (day(timeT) == dayOfMonth) {
+
+            display.setColor(WHITE);
+
+          }
+          
+        #endif
+        
         dayOfMonth++;
         
      }
