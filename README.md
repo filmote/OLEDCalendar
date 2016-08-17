@@ -7,7 +7,7 @@ The inspiration for this project came from [rydepier](https://github.com/rydepie
 
 Additional thanks to :
 
-* [PaulStoffregen](https://github.com/tzapu) for his [Time](https://github.com/PaulStoffregen/Time) project and 
+* [PaulStoffregen](https://github.com/PaulStoffregen) for his [Time](https://github.com/PaulStoffregen/Time) project and 
 * [Squix78](https://github.com/squix78) for his [esp8266-oled-ssd1306](https://github.com/squix78/esp8266-oled-ssd1306) library for driving these little OLED displays.  
 <br />
 
